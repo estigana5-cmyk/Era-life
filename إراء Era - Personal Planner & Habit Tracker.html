@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إراء Era - بلانر وشغف الإنجاز</title>
+  
+  <!-- Fonts: Tajawal & Playfair Display / Great Vibes for decorative English headlines -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;600;700;800&family=Great+Vibes&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            fuchsia: {
+              50: '#fdf2f8',
+              100: '#fce7f3',
+              200: '#fbcfe8',
+              300: '#f472b6',
+              400: '#e879f9',
+              500: '#ec4899',
+              600: '#db2777',
+              700: '#be185d',
+              800: '#9d174d',
+              900: '#831843',
+              950: '#500724',
+            },
+            lolita: {
+              black: '#111827',
+              dark: '#090d16',
+              lace: '#fff5f9',
+              accent: '#ec4899',
+              gold: '#f59e0b',
+            }
+          },
+          fontFamily: {
+            tajawal: ['Tajawal', 'sans-serif'],
+            alexandria: ['Alexandria', 'sans-serif'],
+            cursive: ['"Great Vibes"', 'cursive']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React & Babel Core Libraries -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Tajawal', 'Alexandria', sans-serif;
+      background-color: #090d16;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    /* Coquette & Lace Decorative Styling */
+    .lace-border-top {
+      background-image: radial-gradient(circle at 10px 0, transparent 8px, #db2777 9px);
+      background-size: 20px 20px;
+      background-repeat: repeat-x;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #111827;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #db2777;
+      border-radius: 9999px;
+    }
+
+    .glow-fuchsia {
+      box-shadow: 0 0 25px rgba(219, 39, 119, 0.35);
+    }
+    .glow-fuchsia-sm {
+      box-shadow: 0 0 12px rgba(219, 39, 119, 0.25);
+    }
+
+    @keyframes pulse-slow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.85; }
+    }
+    .animate-pulse-slow {
+      animation: pulse-slow 3s infinite ease-in-out;
+    }
+
+    @keyframes droplet-pop {
+      0% { transform: scale(0.8); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .animate-droplet {
+      animation: droplet-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Sparkle Particle FX */
+    .sparkle {
+      position: absolute;
+      pointer-events: none;
+      background: radial-gradient(circle, #fff 0%, #f472b6 60%, transparent 100%);
+      border-radius: 50%;
+      animation: sparkle-anim 0.8s ease-out forwards;
+    }
+    @keyframes sparkle-anim {
+      0% { transform: scale(0) translate(0, 0); opacity: 1; }
+      100% { transform: scale(1.4) translate(var(--dx), var(--dy)); opacity: 0; }
+    }
+  </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen selection:bg-fuchsia-500 selection:text-white">
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo } = React;
+
+    // --- Native Web Audio Synthesizer for Pure Sound Effects ---
+    class SoundSynth {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playWaterSplash() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.25);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+      playWaterEmpty() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(350, now + 0.2);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      }
+      playCompleteChime() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.15, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.3);
+        });
+      }
+      playSaveSuccess() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.18);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      }
+    }
+    const synth = new SoundSynth();
+
+    // Custom SVG Ribbon Component
+    const CoquetteRibbon = ({ className = "w-6 h-6 text-fuchsia-400" }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 11C10.5 7.5 7 5 4.5 6.5C2 8 2.5 11.5 5 13C7.5 14.5 11 12.5 12 11Z" />
+        <path d="M12 11C13.5 7.5 17 5 19.5 6.5C22 8 21.5 11.5 19 13C16.5 14.5 13 12.5 12 11Z" />
+        <circle cx="12" cy="11.5" r="2" />
+        <path d="M11 13.5C9.5 16.5 7 20 5 21.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M13 13.5C14.5 16.5 17 20 19 21.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+
+    // Initial Defaults & Constants
+    const NOVEMBER_2026_DAYS = 30; // Nov 1 (Sun) to Nov 30 (Mon) 2026
+    const DEFAULT_TIMEZONE = "Africa/Tripoli";
+
+    const DEFAULT_HABITS = {
+      // 1. Morning Care
+      morning_azkar: false,
+      morning_teeth: false,
+      morning_skinclean: false,
+      morning_serum: false,
+      morning_sunscreen: false,
+
+      // 2. Daily Habits
+      nail_filing: false,
+      morning_pills: false, // can be N/A
+      morning_pills_na: false,
+      henna_sidr_mshat: false,
+      e_marketing: false,
+      content_creation: false,
+      education_homecare: false,
+
+      // 3. Evening Care
+      evening_azkar: false,
+      evening_pills: false, // N/A option
+      evening_pills_na: false,
+      evening_teeth: false,
+      evening_skinclean: false,
+      evening_skin_care: false,
+      evening_body_care: false,
+
+      // 4. Study (5 Sessions)
+      study_sessions: [
+        { id: 1, done: false, type: 'مراجعة' },
+        { id: 2, done: false, type: 'حل' },
+        { id: 3, done: false, type: 'مشاهدة' },
+        { id: 4, done: false, type: 'حل' },
+        { id: 5, done: false, type: 'مراجعة' }
+      ],
+
+      // 5. Prayers
+      prayers: {
+        fajr: { done: false, late: false },
+        dhuhr: { done: false, late: false },
+        asr: { done: false, late: false },
+        maghrib: { done: false, late: false },
+        isha: { done: false, late: false },
+      },
+
+      // 6. Water (mL: max 2000)
+      water_ml: 0,
+
+      // 7. Screen Time (Hours)
+      screen_hours: "",
+
+      // 8. Weekly/Daily Care
+      shaving: false,
+      ipl_laser: false,
+      ipl_na: false,
+
+      // 9. Sleep (Hours)
+      sleep_night: "",
+      sleep_nap: "",
+
+      // Workouts
+      workouts: [
+        { id: 'w1', name: 'تمارين الإطالة والإحماء', url: 'https://www.youtube.com/watch?v=inpok4MKVLM', durationMin: 15, actualMoveMin: 15, notes: 'روتين ممتاز للنشاط' }
+      ],
+
+      // Notes
+      free_notes: ""
+    };
+
+    // Calculate Day Score Metrics
+    const calculateDayScore = (data) => {
+      let scores = {};
+      
+      // 1. Morning Care (5 items)
+      const mItems = [data.morning_azkar, data.morning_teeth, data.morning_skinclean, data.morning_serum, data.morning_sunscreen];
+      scores.morning = (mItems.filter(Boolean).length / 5) * 100;
+
+      // 2. Evening Care (6 items + 1 NA pill check)
+      let eItems = [data.evening_azkar, data.evening_teeth, data.evening_skinclean, data.evening_skin_care, data.evening_body_care];
+      let eTotal = 5;
+      if (!data.evening_pills_na) {
+        eTotal += 1;
+        if (data.evening_pills) eItems.push(true);
+      }
+      scores.evening = (eItems.filter(Boolean).length / eTotal) * 100;
+
+      // 3. Daily Growth Habits (6 items total)
+      let dItems = [data.nail_filing, data.henna_sidr_mshat, data.e_marketing, data.content_creation, data.education_homecare];
+      let dTotal = 5;
+      if (!data.morning_pills_na) {
+        dTotal += 1;
+        if (data.morning_pills) dItems.push(true);
+      }
+      scores.habits = (dItems.filter(Boolean).length / dTotal) * 100;
+
+      // 4. Study Sessions (5 sessions)
+      const sDone = data.study_sessions.filter(s => s.done).length;
+      scores.study = (sDone / 5) * 100;
+
+      // 5. Prayers (5 prayers: On time=1, Late=0.5, Unperformed=0)
+      let pPoints = 0;
+      Object.values(data.prayers).forEach(p => {
+        if (p.done) {
+          pPoints += p.late ? 0.5 : 1.0;
+        }
+      });
+      scores.prayers = (pPoints / 5.0) * 100;
+
+      // 6. Water (Goal: 2000 ml)
+      const wVal = Math.min(2000, Number(data.water_ml) || 0);
+      scores.water = (wVal / 2000) * 100;
+
+      // 7. Workouts (Goal: 15 min actual movement)
+      const moveMin = data.workouts.reduce((acc, w) => acc + (Number(w.actualMoveMin) || 0), 0);
+      scores.workouts = Math.min(100, (moveMin / 15) * 100);
+
+      // 8. Sleep (Goal: 8 hours total)
+      const sleepTotal = (Number(data.sleep_night) || 0) + (Number(data.sleep_nap) || 0);
+      scores.sleep = data.sleep_night !== "" ? Math.min(100, (sleepTotal / 8) * 100) : 0;
+
+      // 9. Phone Screen Time (Goal: <= 3 hours = 100%, >3h = 3/hours * 100)
+      if (data.screen_hours !== "" && !isNaN(Number(data.screen_hours))) {
+        const hrs = Number(data.screen_hours);
+        if (hrs <= 3) {
+          scores.screen = 100;
+        } else if (hrs > 0) {
+          scores.screen = Math.min(100, (3 / hrs) * 100);
+        } else {
+          scores.screen = 100;
+        }
+      } else {
+        scores.screen = 0;
+      }
+
+      // Overall Score Calculation (Average of 9 Categories)
+      const catKeys = ['morning', 'evening', 'habits', 'study', 'prayers', 'water', 'workouts', 'sleep', 'screen'];
+      const totalSum = catKeys.reduce((acc, k) => acc + (scores[k] || 0), 0);
+      const overallScore = Math.round(totalSum / catKeys.length);
+
+      // Calculate Registration Completion Progress (% of fields interacted with)
+      let filledFields = 0;
+      let totalFields = 22; // Core fields count
+      if (data.morning_azkar) filledFields++;
+      if (data.morning_teeth) filledFields++;
+      if (data.evening_azkar) filledFields++;
+      if (data.evening_teeth) filledFields++;
+      if (data.water_ml > 0) filledFields++;
+      if (data.screen_hours !== "") filledFields++;
+      if (data.sleep_night !== "") filledFields++;
+      if (sDone > 0) filledFields += (sDone / 5);
+      
+      const registrationProgress = Math.min(100, Math.round((filledFields / 12) * 100));
+
+      return { scores, overallScore, registrationProgress };
+    };
+
+    // MAIN REACT APP
+    function App() {
+      // User Auth State
+      const [isAuthenticated, setIsAuthenticated] = useState(false);
+      const [isViewerMode, setIsViewerMode] = useState(false);
+      const [passwordInput, setPasswordInput] = useState("");
+      const [ownerPassword, setOwnerPassword] = useState(() => localStorage.getItem("era_owner_pass") || "era2026");
+      const [authError, setAuthError] = useState("");
+
+      // App Active Tab
+      const [activeTab, setActiveTab] = useState("daily"); // daily, harvest, scoring
+
+      // Date Management (Default: Nov 15, 2026 or selected Nov 2026 day)
+      const [selectedDay, setSelectedDay] = useState(15);
+      const [liveTime, setLiveTime] = useState("");
+
+      // Visitor Count for Viewer Mode (Stored cumulatively)
+      const [visitorCount, setVisitorCount] = useState(() => {
+        return Number(localStorage.getItem("era_cumulative_visitors") || 142);
+      });
+
+      // Days Database (Owner persistence vs Sandbox)
+      const [daysData, setDaysData] = useState(() => {
+        const saved = localStorage.getItem("era_days_db_nov2026");
+        if (saved) {
+          try { return JSON.parse(saved); } catch (e) { }
+        }
+        // Initialize 30 Days of November 2026
+        const initDB = {};
+        for (let d = 1; d <= NOVEMBER_2026_DAYS; d++) {
+          initDB[d] = {
+            dayNum: d,
+            status: 'empty', // empty, draft, committed
+            lastSaved: null,
+            revision: 1,
+            data: JSON.parse(JSON.stringify(DEFAULT_HABITS))
+          };
+        }
+        return initDB;
+      });
+
+      // Sound Mute Toggle
+      const [isMuted, setIsMuted] = useState(false);
+
+      // Workout Stopwatch State
+      const [timerRunning, setTimerRunning] = useState(false);
+      const [timerSeconds, setTimerSeconds] = useState(0);
+      const timerRef = useRef(null);
+
+      // Confirmation Modal State
+      const [showCommitModal, setShowCommitModal] = useState(false);
+      const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
+      const [newPass, setNewPass] = useState("");
+      const [noticeMessage, setNoticeMessage] = useState("");
+
+      // Live Time Clock (Tripoli Africa/Tripoli - UTC+2)
+      useEffect(() => {
+        const updateClock = () => {
+          const now = new Date();
+          const options = {
+            timeZone: DEFAULT_TIMEZONE,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+          };
+          setLiveTime(new Intl.DateTimeFormat('en-US', options).format(now));
+        };
+        updateClock();
+        const interval = setInterval(updateClock, 1000);
+        return () => clearInterval(interval);
+      }, []);
+
+      // Stopwatch logic
+      useEffect(() => {
+        if (timerRunning) {
+          timerRef.current = setInterval(() => {
+            setTimerSeconds(prev => prev + 1);
+          }, 1000);
+        } else {
+          clearInterval(timerRef.current);
+        }
+        return () => clearInterval(timerRef.current);
+      }, [timerRunning]);
+
+      // Sound Mute Synchronization
+      useEffect(() => {
+        synth.muted = isMuted;
+      }, [isMuted]);
+
+      // Auto-save notice dismiss
+      useEffect(() => {
+        if (noticeMessage) {
+          const t = setTimeout(() => setNoticeMessage(""), 4000);
+          return () => clearTimeout(t);
+        }
+      }, [noticeMessage]);
+
+      // Login Handler
+      const handleLogin = (e) => {
+        e.preventDefault();
+        setAuthError("");
+
+        if (passwordInput === ownerPassword) {
+          setIsAuthenticated(true);
+          setIsViewerMode(false);
+        } else if (passwordInput === "000") {
+          setIsAuthenticated(true);
+          setIsViewerMode(true);
+          // Increment visitor count cumulatively
+          const newCount = visitorCount + 1;
+          setVisitorCount(newCount);
+          localStorage.setItem("era_cumulative_visitors", newCount.toString());
+        } else {
+          setAuthError("كلمة المرور غير صحيحة. استخدم رمز 000 لوضع المشاهدة.");
+        }
+      };
+
+      // Current Selected Day Entry
+      const currentDayObject = daysData[selectedDay] || {
+        dayNum: selectedDay,
+        status: 'empty',
+        lastSaved: null,
+        revision: 1,
+        data: JSON.parse(JSON.stringify(DEFAULT_HABITS))
+      };
+
+      // Update current day habit field
+      const updateHabitField = (fieldPath, value) => {
+        if (isViewerMode) {
+          // Sandbox update only in React state
+          setDaysData(prev => {
+            const copy = JSON.parse(JSON.stringify(prev));
+            if (!copy[selectedDay]) return prev;
+            setDeepValue(copy[selectedDay].data, fieldPath, value);
+            if (copy[selectedDay].status === 'empty') copy[selectedDay].status = 'draft';
+            return copy;
+          });
+          return;
+        }
+
+        // Owner Update
+        setDaysData(prev => {
+          const copy = JSON.parse(JSON.stringify(prev));
+          const dayObj = copy[selectedDay];
+          setDeepValue(dayObj.data, fieldPath, value);
+          if (dayObj.status === 'empty' || dayObj.status === 'committed') {
+            dayObj.status = 'draft'; // Editing reverts committed back to draft
+          }
+          return copy;
+        });
+      };
+
+      // Helper function to set nested object properties
+      const setDeepValue = (obj, path, val) => {
+        const parts = path.split('.');
+        let current = obj;
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (!current[parts[i]]) current[parts[i]] = {};
+          current = current[parts[i]];
+        }
+        current[parts[parts.length - 1]] = val;
+      };
+
+      // Water Droplet Handler with Audio & Particle Sparkle
+      const handleWaterAdd = (amount) => {
+        const currentW = Number(currentDayObject.data.water_ml) || 0;
+        let nextW = currentW + amount;
+        if (nextW > 2000) nextW = 2000;
+        updateHabitField('water_ml', nextW);
+        synth.playWaterSplash();
+      };
+
+      const handleWaterReset = () => {
+        updateHabitField('water_ml', 0);
+        synth.playWaterEmpty();
+      };
+
+      // Save Draft Handler
+      const handleSaveDraft = () => {
+        if (isViewerMode) {
+          setNoticeMessage("⚠️ وضع المشاهدة: لا يتم حفظ التغيرات بشكل دائم.");
+          return;
+        }
+
+        const nowStr = new Date().toLocaleTimeString('ar-LY', { hour: '2-digit', minute: '2-digit' });
+        setDaysData(prev => {
+          const copy = JSON.parse(JSON.stringify(prev));
+          const dayObj = copy[selectedDay];
+          dayObj.status = 'draft';
+          dayObj.lastSaved = nowStr;
+          dayObj.revision += 1;
+          localStorage.setItem("era_days_db_nov2026", JSON.stringify(copy));
+          return copy;
+        });
+
+        synth.playSaveSuccess();
+        setNoticeMessage(`✨ تم حفظ المسودة ليوم ${selectedDay} نوفمبر بنجاح!`);
+      };
+
+      // Commit & Finalize Day Handler
+      const handleConfirmCommit = () => {
+        if (isViewerMode) {
+          setNoticeMessage("⚠️ وضع المشاهدة: لا يمكنك اعتماد اليوم بالسجل الأصلي.");
+          setShowCommitModal(false);
+          return;
+        }
+
+        const nowStr = new Date().toLocaleTimeString('ar-LY', { hour: '2-digit', minute: '2-digit' });
+        setDaysData(prev => {
+          const copy = JSON.parse(JSON.stringify(prev));
+          const dayObj = copy[selectedDay];
+          dayObj.status = 'committed';
+          dayObj.lastSaved = nowStr;
+          dayObj.revision += 1;
+          localStorage.setItem("era_days_db_nov2026", JSON.stringify(copy));
+          return copy;
+        });
+
+        synth.playCompleteChime();
+        setShowCommitModal(false);
+        setNoticeMessage(`🎉 تم اعتماد وتوثيق يوم ${selectedDay} نوفمبر في حصاد الشهر!`);
+      };
+
+      // Password Change Handler
+      const handleSaveNewPassword = (e) => {
+        e.preventDefault();
+        if (!newPass || newPass.length < 4) {
+          alert("كلمة المرور يجب أن تكون 4 أحرف أو أرقام على الأقل");
+          return;
+        }
+        setOwnerPassword(newPass);
+        localStorage.setItem("era_owner_pass", newPass);
+        setShowPasswordChangeModal(false);
+        setNoticeMessage("🔒 تم تغيير كلمة مرور المالك بنجاح!");
+      };
+
+      // Export Data (JSON & CSV)
+      const exportJSON = () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(daysData, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `Era_Planner_Harvest_Nov2026.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+      };
+
+      const exportCSV = () => {
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+        csvContent += "اليوم,الحالة,النسبة المئوية %,ساعات المذاكرة,ساعات النوم,استخدام الهاتف,الماء (مل),تاريخ الحفظ\n";
+
+        Object.values(daysData).forEach(day => {
+          const { overallScore } = calculateDayScore(day.data);
+          const studyHrs = (day.data.study_sessions.filter(s => s.done).length * 30) / 60;
+          const sleepTotal = (Number(day.data.sleep_night) || 0) + (Number(day.data.sleep_nap) || 0);
+          csvContent += `${day.dayNum},${day.status},${overallScore}%,${studyHrs},${sleepTotal},${day.data.screen_hours || 0},${day.data.water_ml || 0},${day.lastSaved || 'غير مسجل'}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "Era_Planner_Summary_Nov2026.csv");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      };
+
+      // Calculate Day Score for active display
+      const currentScores = useMemo(() => {
+        return calculateDayScore(currentDayObject.data);
+      }, [currentDayObject]);
+
+      // Calculate Monthly Statistics for Harvest Tab
+      const harvestStats = useMemo(() => {
+        const allDays = Object.values(daysData);
+        const committedDays = allDays.filter(d => d.status === 'committed');
+        const draftDays = allDays.filter(d => d.status === 'draft');
+        
+        let scoreSum = 0;
+        let studyMinTotal = 0;
+        let workoutMinTotal = 0;
+        let waterMlTotal = 0;
+        let sleepTotalSum = 0;
+        let screenTotalSum = 0;
+
+        committedDays.forEach(day => {
+          const { overallScore } = calculateDayScore(day.data);
+          scoreSum += overallScore;
+
+          const sDone = day.data.study_sessions.filter(s => s.done).length;
+          studyMinTotal += sDone * 30;
+
+          const moveMin = day.data.workouts.reduce((acc, w) => acc + (Number(w.actualMoveMin) || 0), 0);
+          workoutMinTotal += moveMin;
+
+          waterMlTotal += Number(day.data.water_ml) || 0;
+          sleepTotalSum += (Number(day.data.sleep_night) || 0) + (Number(day.data.sleep_nap) || 0);
+          screenTotalSum += Number(day.data.screen_hours) || 0;
+        });
+
+        const avgScore = committedDays.length > 0 ? Math.round(scoreSum / committedDays.length) : 0;
+        const avgSleep = committedDays.length > 0 ? (sleepTotalSum / committedDays.length).toFixed(1) : 0;
+        const avgScreen = committedDays.length > 0 ? (screenTotalSum / committedDays.length).toFixed(1) : 0;
+
+        return {
+          committedCount: committedDays.length,
+          draftCount: draftDays.length,
+          avgScore,
+          totalStudyHours: (studyMinTotal / 60).toFixed(1),
+          totalWorkoutMin: workoutMinTotal,
+          totalWaterLiters: (waterMlTotal / 1000).toFixed(1),
+          avgSleep,
+          avgScreen
+        };
+      }, [daysData]);
+
+
+      // ---------------- LOGIN SCREEN ----------------
+      if (!isAuthenticated) {
+        return (
+          <div className="min-h-screen bg-gray-950 flex flex-col justify-center items-center p-4 relative overflow-hidden">
+            {/* Ambient Fuchsia Glow Backdrops */}
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-fuchsia-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-10 right-10 w-72 h-72 bg-pink-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            {/* Login Card */}
+            <div className="w-full max-w-md bg-gray-900/90 border-2 border-fuchsia-500/40 rounded-3xl p-8 backdrop-blur-xl shadow-2xl relative z-10 glow-fuchsia">
+              {/* Coquette Ribbon Header Accent */}
+              <div className="flex justify-center mb-3">
+                <div className="p-3 bg-fuchsia-950/80 rounded-full border border-fuchsia-400/50 flex items-center justify-center animate-pulse-slow">
+                  <CoquetteRibbon className="w-10 h-10 text-fuchsia-400" />
+                </div>
+              </div>
+
+              <div className="text-center mb-6">
+                <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 via-fuchsia-400 to-pink-200 tracking-wide">
+                  إراء Era
+                </h1>
+                <p className="font-cursive text-2xl text-fuchsia-300 mt-1">You are going to GLOW ✨</p>
+                <p className="text-xs text-gray-400 mt-2 font-tajawal">مخطط الإنجاز والعناية الشخصية - طرابلس (ليبيا)</p>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-fuchsia-200 mb-1">كلمة المرور (أو رمز المشاهدة 000)</label>
+                  <input
+                    type="password"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    placeholder="أدخل كلمة المرور..."
+                    className="w-full px-4 py-3 bg-gray-950/80 border border-fuchsia-500/30 rounded-2xl text-white focus:outline-none focus:border-fuchsia-400 transition"
+                    required
+                  />
+                </div>
+
+                {authError && (
+                  <div className="p-3 bg-rose-950/60 border border-rose-500/40 rounded-xl text-rose-300 text-xs text-center">
+                    {authError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full py-3.5 bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-bold rounded-2xl shadow-lg hover:shadow-fuchsia-500/30 transition duration-200 flex items-center justify-center gap-2 text-base"
+                >
+                  <i data-lucide="sparkles" className="w-5 h-5"></i>
+                  سجل دخولك
+                </button>
+              </form>
+
+              <div className="mt-6 pt-5 border-t border-fuchsia-500/20 text-center">
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  💡 للمشاهدة والتجربة المؤقتة: ادخل الرمز <span className="text-fuchsia-300 font-mono font-bold bg-fuchsia-950 px-2 py-0.5 rounded">000</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+
+      // ---------------- MAIN APPLICATION INTERFACE ----------------
+      return (
+        <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col relative pb-20">
+          
+          {/* Top Decorative Banner */}
+          <div className="w-full h-1 bg-gradient-to-r from-fuchsia-600 via-pink-400 to-fuchsia-700"></div>
+
+          {/* Toast Notice Banner */}
+          {noticeMessage && (
+            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-fuchsia-900/95 border-2 border-fuchsia-400 text-white rounded-full shadow-2xl text-sm font-semibold animate-bounce backdrop-blur-md">
+              {noticeMessage}
+            </div>
+          )}
+
+          {/* Viewer Mode Alert Banner */}
+          {isViewerMode && (
+            <div className="bg-amber-950/90 border-b border-amber-500/40 text-amber-200 px-4 py-2 text-xs text-center flex items-center justify-center gap-2">
+              <i data-lucide="alert-triangle" className="w-4 h-4 text-amber-400"></i>
+              <span>⚠️ وضع المشاهدة: هذه تجربة مؤقتة منفصلة ولا تؤثر على سجل المالك ولن تحفظ التغييرات عند تحديث الصفحة</span>
+            </div>
+          )}
+
+          {/* MAIN HEADER */}
+          <header className="bg-gray-900/80 border-b border-fuchsia-900/30 sticky top-0 z-40 backdrop-blur-md">
+            <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+              
+              {/* Brand Logo & Name */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-pink-700 flex items-center justify-center text-white shadow-md glow-fuchsia-sm">
+                  <CoquetteRibbon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 to-pink-200">
+                    إراء Era
+                  </h1>
+                  <span className="text-[10px] text-fuchsia-300/80 font-mono block">نوفمبر 2026 • طرابلس</span>
+                </div>
+              </div>
+
+              {/* Navigation Tabs */}
+              <nav className="flex items-center bg-gray-950/80 p-1.5 rounded-2xl border border-fuchsia-500/20">
+                <button
+                  onClick={() => setActiveTab("daily")}
+                  className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition flex items-center gap-1.5 ${
+                    activeTab === "daily"
+                      ? "bg-fuchsia-600 text-white shadow-md"
+                      : "text-gray-300 hover:text-fuchsia-300"
+                  }`}
+                >
+                  <i data-lucide="calendar" className="w-4 h-4"></i>
+                  يومي
+                </button>
+
+                <button
+                  onClick={() => setActiveTab("harvest")}
+                  className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition flex items-center gap-1.5 ${
+                    activeTab === "harvest"
+                      ? "bg-fuchsia-600 text-white shadow-md"
+                      : "text-gray-300 hover:text-fuchsia-300"
+                  }`}
+                >
+                  <i data-lucide="bar-chart-2" className="w-4 h-4"></i>
+                  حصاد الشهر
+                </button>
+
+                <button
+                  onClick={() => setActiveTab("scoring")}
+                  className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition flex items-center gap-1.5 ${
+                    activeTab === "scoring"
+                      ? "bg-fuchsia-600 text-white shadow-md"
+                      : "text-gray-300 hover:text-fuchsia-300"
+                  }`}
+                >
+                  <i data-lucide="help-circle" className="w-4 h-4"></i>
+                  كيف تُحسب النسبة؟
+                </button>
+              </nav>
+
+              {/* Header Right Controls: Live Clock & Sound Toggle & Exit */}
+              <div className="flex items-center gap-3">
+                <div className="hidden sm:flex flex-col text-left font-mono text-xs bg-gray-950/90 px-3 py-1.5 rounded-xl border border-fuchsia-500/20">
+                  <span className="text-fuchsia-400 font-bold">{liveTime}</span>
+                  <span className="text-[9px] text-gray-400">Asia/Riyadh (UTC+2)</span>
+                </div>
+
+                <button
+                  onClick={() => setIsMuted(!isMuted)}
+                  title={isMuted ? "تشغيل الصوت" : "كتم الصوت"}
+                  className="p-2.5 bg-gray-950 rounded-xl border border-fuchsia-500/30 text-fuchsia-300 hover:bg-fuchsia-950 transition"
+                >
+                  {isMuted ? (
+                    <i data-lucide="volume-x" className="w-4 h-4"></i>
+                  ) : (
+                    <i data-lucide="volume-2" className="w-4 h-4"></i>
+                  )}
+                </button>
+
+                {!isViewerMode && (
+                  <button
+                    onClick={() => setShowPasswordChangeModal(true)}
+                    title="تغيير كلمة المرور"
+                    className="p-2.5 bg-gray-950 rounded-xl border border-fuchsia-500/30 text-gray-300 hover:text-fuchsia-300 hover:bg-fuchsia-950 transition"
+                  >
+                    <i data-lucide="key" className="w-4 h-4"></i>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setIsAuthenticated(false)}
+                  title="تسجيل الخروج"
+                  className="p-2.5 bg-gray-950 rounded-xl border border-rose-500/30 text-rose-400 hover:bg-rose-950 transition"
+                >
+                  <i data-lucide="log-out" className="w-4 h-4"></i>
+                </button>
+              </div>
+
+            </div>
+          </header>
+
+          {/* MAIN CONTENT BODY */}
+          <main className="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
+
+            {/* TAB 1: DAILY VIEW */}
+            {activeTab === "daily" && (
+              <div className="space-y-6">
+
+                {/* Day Selection Bar & Date Controls */}
+                <div className="bg-gray-900/90 border border-fuchsia-500/30 rounded-3xl p-5 backdrop-blur-md shadow-xl">
+                  <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                    <div>
+                      <h2 className="text-xl font-bold text-fuchsia-200 flex items-center gap-2">
+                        <span>سجل يوم {selectedDay} نوفمبر 2026</span>
+                        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                          currentDayObject.status === 'committed' 
+                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40' 
+                            : currentDayObject.status === 'draft'
+                            ? 'bg-amber-950 text-amber-300 border border-amber-500/40'
+                            : 'bg-gray-800 text-gray-400'
+                        }`}>
+                          {currentDayObject.status === 'committed' ? 'معتمد' : currentDayObject.status === 'draft' ? 'مسودة' : 'فارغ'}
+                        </span>
+                      </h2>
+                      {currentDayObject.lastSaved && (
+                        <p className="text-xs text-gray-400 mt-1">آخر حفظ: {currentDayObject.lastSaved}</p>
+                      )}
+                    </div>
+
+                    {/* Overall Progress Summary Banners */}
+                    <div className="flex items-center gap-4">
+                      <div className="bg-gray-950 p-3 rounded-2xl border border-fuchsia-500/30 text-center min-w-[100px]">
+                        <span className="block text-[10px] text-gray-400">نسبة الإنجاز</span>
+                        <span className="text-xl font-extrabold text-fuchsia-400 font-mono">
+                          {currentScores.overallScore}%
+                        </span>
+                      </div>
+
+                      <div className="bg-gray-950 p-3 rounded-2xl border border-fuchsia-500/30 text-center min-w-[100px]">
+                        <span className="block text-[10px] text-gray-400">اكتمال التسجيل</span>
+                        <span className="text-xl font-extrabold text-pink-300 font-mono">
+                          {currentScores.registrationProgress}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Horizontal Scroll Calendar Picker for Nov 2026 */}
+                  <div>
+                    <label className="block text-xs font-semibold text-fuchsia-300 mb-2">اختر اليوم للمراجعة والتسجيل:</label>
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                      {Array.from({ length: NOVEMBER_2026_DAYS }, (_, i) => i + 1).map(d => {
+                        const isSelected = selectedDay === d;
+                        const status = daysData[d]?.status || 'empty';
+                        return (
+                          <button
+                            key={d}
+                            onClick={() => setSelectedDay(d)}
+                            className={`flex-shrink-0 w-12 h-14 rounded-2xl flex flex-col items-center justify-center transition border ${
+                              isSelected
+                                ? 'bg-fuchsia-600 text-white border-fuchsia-400 shadow-lg glow-fuchsia-sm scale-105'
+                                : status === 'committed'
+                                ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-200'
+                                : status === 'draft'
+                                ? 'bg-amber-950/40 border-amber-500/30 text-amber-200'
+                                : 'bg-gray-950 border-gray-800 text-gray-400 hover:border-fuchsia-500/40'
+                            }`}
+                          >
+                            <span className="text-[10px] opacity-75">نوفمبر</span>
+                            <span className="text-base font-bold font-mono">{d}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* HABIT TRACKING CARDS GRID */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                  {/* 1. MORNING CARE */}
+                  <div className="bg-gray-900/80 border border-fuchsia-500/30 rounded-3xl p-5 shadow-lg relative overflow-hidden">
+                    <div className="flex items-center gap-2 mb-4 border-b border-fuchsia-500/20 pb-3">
+                      <i data-lucide="sun" className="w-5 h-5 text-amber-400"></i>
+                      <h3 className="font-bold text-fuchsia-200 text-base">العناية الصباحية</h3>
+                    </div>
+
+                    <div className="space-y-3">
+                      {[
+                        { key: 'morning_azkar', label: 'أذكار الصباح' },
+                        { key: 'morning_teeth', label: 'غسل الأسنان' },
+                        { key: 'morning_skinclean', label: 'تنظيف البشرة' },
+                        { key: 'morning_serum', label: 'السيروم والترطيب' },
+                        { key: 'morning_sunscreen', label: 'واقي الشمس SPF' },
+                      ].map(item => (
+                        <label key={item.key} className="flex items-center justify-between p-3 bg-gray-950/80 rounded-2xl border border-gray-800 hover:border-fuchsia-500/40 cursor-pointer transition">
+                          <span className="text-sm text-gray-200">{item.label}</span>
+                          <input
+                            type="checkbox"
+                            checked={!!currentDayObject.data[item.key]}
+                            onChange={(e) => updateHabitField(item.key, e.target.checked)}
+                            className="w-5 h-5 accent-fuchsia-600 rounded cursor-pointer"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 2. EVENING CARE */}
+                  <div className="bg-gray-900/80 border border-fuchsia-500/30 rounded-3xl p-5 shadow-lg relative overflow-hidden">
+                    <div className="flex items-center justify-between mb-4 border-b border-fuchsia-500/20 pb-3">
+                      <div className="flex items-center gap-2">
+                        <i data-lucide="moon" className="w-5 h-5 text-indigo-400"></i>
+                        <h3 className="font-bold text-fuchsia-200 text-base">العناية المسائية</h3>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {[
+                        { key: 'evening_azkar', label: 'أذكار المساء' },
+                        { key: 'evening_teeth', label: 'غسل الأسنان' },
+                        { key: 'evening_skinclean', label: 'تنظيف البشرة' },
+                        { key: 'evening_skin_care', label: 'العناية المسائية بالبشرة' },
+                        { key: 'evening_body_care', label: 'العناية بالجسم' },
+                      ].map(item => (
+                        <label key={item.key} className="flex items-center justify-between p-3 bg-gray-950/80 rounded-2xl border border-gray-800 hover:border-fuchsia-500/40 cursor-pointer transition">
+                          <span className="text-sm text-gray-200">{item.label}</span>
+                          <input
+                            type="checkbox"
+                            checked={!!currentDayObject.data[item.key]}
+                            onChange={(e) => updateHabitField(item.key, e.target.checked)}
+                            className="w-5 h-5 accent-fuchsia-600 rounded cursor-pointer"
+                          />
+                        </label>
+                      ))}
+
+                      {/* Evening Pills with N/A Toggle */}
+                      <div className="p-3 bg-gray-950/80 rounded-2xl border border-gray-800 flex items-center justify-between">
+                        <span className="text-sm text-gray-200">الحبوب المسائية</span>
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={!!currentDayObject.data.evening_pills_na}
+                              onChange={(e) => updateHabitField('evening_pills_na', e.target.checked)}
+                              className="w-4 h-4 accent-gray-500"
+                            />
+                            لا ينطبق
+                          </label>
+
+                          {!currentDayObject.data.evening_pills_na && (
+                            <input
+                              type="checkbox"
+                              checked={!!currentDayObject.data.evening_pills}
+                              onChange={(e) => updateHabitField('evening_pills', e.target.checked)}
+                              className="w-5 h-5 accent-fuchsia-600 rounded cursor-pointer"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. DAILY HABITS & PERSONAL GROWTH */}
+                  <div className="bg-gray-900/80 border border-fuchsia-500/30 rounded-3xl p-5 shadow-lg md:col-span-2">
+                    <div className="flex items-center gap-2 mb-4 border-b border-fuchsia-500/20 pb-3">
+                      <CoquetteRibbon className="w-5 h-5 text-fuchsia-400" />
+                      <h3 className="font-bold text-fuchsia-200 text-base">العادات اليومية وتطوير الذات</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      <label className="flex items-center justify-between p-3 bg-gray-950/80 rounded-2xl border border-gray-800 hover:border-fuchsia-500/40 cursor-pointer transition">
+                        <span className="text-sm text-gray-200">برد الأظافر</span>
+                        <input
+                          type="checkbox"
+                          checked={!!currentDayObject.data.nail_filing}
+                          onChange={(e) => updateHabitField('nail_filing', e.target.checked)}
+                          className="w-5 h-5 accent-fuchsia-600 rounded"
+                        />
+                      </label>
+
+                      {/* Morning Pills with N/A Toggle */}
+                      <div className="p-3 bg-gray-950/80 rounded-2xl border border-gray-800 flex items-center justify-between">
+                        <span className="text-sm text-gray-200">تناول الحبوب الصباحية</span>
+                        <div className="flex items-center gap-2">
+                          <label className="flex items-center gap-1 text-[11px] text-gray-400 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={!!currentDayObject.data.morning_pills_na}
+                              onChange={(e) => updateHabitField('morning_pills_na', e.target.checked)}
+                              className="w-3.5 h-3.5 accent-gray-500"
+                            />
+                            لا ينطبق
+                          </label>
+                          {!currentDayObject.data.morning_pills_na && (
+                            <input
+                              type="checkbox"
+                              checked={!!currentDayObject.data.morning_pills}
+                              onChange={(e) => updateHabitField('morning_pills', e.target.checked)}
+                              className="w-5 h-5 accent-fuchsia-600 rounded"
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      {[
+                        { key: 'henna_sidr_mshat', label: 'الحنة والسدر والمشاط' },
+                        { key: 'e_marketing', label: 'التسويق الإلكتروني' },
+                        { key: 'content_creation', label: 'صناعة المحتوى' },
+                        { key: 'education_homecare', label: 'الاهتمام بالتعليم والمنزل' },
+                      ].map(item => (
+                        <label key={item.key} className="flex items-center justify-between p-3 bg-gray-950/80 rounded-2xl border border-gray-800 hover:border-fuchsia-500/40 cursor-pointer transition">
+                          <span className="text-sm text-gray-200">{item.label}</span>
+                          <input
+                            type="checkbox"
+                            checked={!!currentDayObject.data[item.key]}
+                            onChange={(e) => updateHabitField(item.key, e.target.checked)}
+                            className="w-5 h-5 accent-fuchsia-600 rounded"
+                          />
+                        </label>
+                      ))}
+
+                      {/* Daily/Weekly Shaving & Laser */}
+                      <label className="flex items-center justify-between p-3 bg-gray-950/80 rounded-2xl border border-gray-800 hover:border-fuchsia-500/40 cursor-pointer transition">
+                        <span className="text-sm text-gray-200">الحلاقة اليومية/الدورية</span>
+                        <input
+                          type="checkbox"
+                          checked={!!currentDayObject.data.shaving}
+                          onChange={(e) => updateHabitField('shaving', e.target.checked)}
+                          className="w-5 h-5 accent-fuchsia-600 rounded"
+                        />
+                      </label>
+
+                      <div className="p-3 bg-gray-950/80 rounded-2xl border border-gray-800 flex items-center justify-between">
+                        <span className="text-sm text-gray-200">جلسة IPL Laser</span>
+                        <div className="flex items-center gap-2">
+                          <label className="flex items-center gap-1 text-[11px] text-gray-400 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={!!currentDayObject.data.ipl_na}
+                              onChange={(e) => updateHabitField('ipl_na', e.target.checked)}
+                              className="w-3.5 h-3.5 accent-gray-500"
+                            />
+                            لا ينطبق
+                          </label>
+                          {!currentDayObject.data.ipl_na && (
+                            <input
+                              type="checkbox"
+                              checked={!!currentDayObject.data.ipl_laser}
+                              onChange={(e) => updateHabitField('ipl_laser', e.target.checked)}
+                              className="w-5 h-5 accent-fuchsia-600 rounded"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. STUDY SESSIONS (القدرات والتعليم) */}
+                  <div className="bg-gray-900/80 border border-fuchsia-500/30 rounded-3xl p-5 shadow-lg md:col-span-2">
+                    <div className="flex items-center justify-between mb-4 border-b border-fuchsia-500/20 pb-3">
+                      <div className="flex items-center gap-2">
+                        <i data-lucide="book-open" className="w-5 h-5 text-fuchsia-400"></i>
+                        <h3 className="font-bold text-fuchsia-200 text-base">مذاكرة القدرات والتعليم</h3>
+                      </div>
+                      <span className="text-xs text-gray-400 bg-gray-950 px-3 py-1 rounded-full border border-gray-800">
+                        الهدف: 5 جلسات × 30 دقيقة (إجمالي 150 دقيقة)
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                      {currentDayObject.data.study_sessions.map((session, idx) => (
+                        <div key={session.id} className="bg-gray-950/90 p-4 rounded-2xl border border-gray-800 flex flex-col justify-between space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-fuchsia-300">جلسة #{session.id}</span>
+                            <input
+                              type="checkbox"
+                              checked={session.done}
+                              onChange={(e) => {
+                                const newSessions = [...currentDayObject.data.study_sessions];
+                                newSessions[idx].done = e.target.checked;
+                                updateHabitField('study_sessions', newSessions);
+                              }}
+                              className="w-5 h-5 accent-fuchsia-600 rounded cursor-pointer"
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-1 bg-gray-900 p-1 rounded-xl border border-gray-800 text-[11px]">
+                            {['مراجعة', 'حل', 'مشاهدة'].map(t => (
+                              <button
+                                key={t}
+                                onClick={() => {
+                                  const newSessions = [...currentDayObject.data.study_sessions];
+                                  newSessions[idx].type = t;
+                                  updateHabitField('study_sessions', newSessions);
+                                }}
+                                className={`flex-1 py-1 rounded-lg text-center transition ${
+                                  session.type === t ? 'bg-fuchsia-600 text-white font-bold' : 'text-gray-400 hover:text-white'
+                                }`}
+                              >
+                                {t}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 5. PRAYERS (الصلوات الخمس) */}
+                  <div className="bg-gray-900/80 border border-fuchsia-500/30 rounded-3xl p-5 shadow-lg md:col-span-2">
+                    <div className="flex items-center justify-between mb-4 border-b border-fuchsia-500/20 pb-3">
+                      <div className="flex items-center gap-2">
+                        <i data-lucide="heart" className="w-5 h-5 text-fuchsia-400"></i>
+                        <h3 className="font-bold text-fuchsia-200 text-base">متابعة الصلوات الخمس</h3>
+                      </div>
+                      <span className="text-[11px] text-gray-400">
+                        في وقتها = 1 نقطة | متأخرة = 0.5 نقطة (قاعدة متابعة شخصية)
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                      {[
+                        { key: 'fajr', label: 'الفجر' },
+                        { key: 'dhuhr', label: 'الظهر' },
+                        { key: 'asr', label: 'العصر' },
+                        { key: 'maghrib', label: 'المغرب' },
+                        { key: 'isha', label: 'العشاء' },
+                      ].map(p => {
+                        const pObj = currentDayObject.data.prayers[p.key] || { done: false, late: false };
+                        return (
+                          <div key={p.key} className="bg-gray-950 p-4 rounded-2xl border border-gray-800 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-sm text-gray-200">{p.label}</span>
+                              <input
+                                type="checkbox"
+                                checked={pObj.done}
+                                onChange={(e) => {
+                                  const doneVal = e.target.checked;
+                                  updateHabitField(`prayers.${p.key}`, {
+                                    done: doneVal,
+                                    late: doneVal ? pObj.late : false
+                                  });
+                                }}
+                                className="w-5 h-5 accent-fuchsia-600 rounded cursor-pointer"
+                              />
+                            </div>
+
+                            <label className={`flex items-center gap-1.5 text-xs p-1.5 rounded-xl border transition cursor-pointer ${
+                              pObj.late ? 'bg-amber-950/50 border-amber-500/40 text-amber-300' : 'bg-gray-900 border-gray-800 text-gray-400'
+                            }`}>
+                              <input
+                                type="checkbox"
+                                disabled={!pObj.done}
+                                checked={pObj.late}
+                                onChange={(e) => {
+                                  updateHabitField(`prayers.${p.key}.late`, e.target.checked);
+                                }}
+                                className="w-3.5 h-3.5 accent-amber-500"
+                              />
+                              <span>متأخرة</span>
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 6. WATER TRACKING */}
+                  <div className="bg-gray-900/80 border border-fuchsia-500/30 rounded-3xl p-5 shadow-lg">
+                    <div className="flex items-center justify-between mb-4 border-b border-fuchsia-500/20 pb-3">
+                      <div className="flex items-center gap-2">
+                        <i data-lucide="droplet" className="w-5 h-5 text-cyan-400"></i>
+                        <h3 className="font-bold text-fuchsia-200 text-base">متابعة شرب الماء</h3>
+                      </div>
+                      <span className="text-xs font-mono text-cyan-300 bg-cyan-950/80 px-2.5 py-1 rounded-full border border-cyan-500/30">
+                        {currentDayObject.data.water_ml} / 2000 مل
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-2 mb-4">
+                      {[500, 1000, 1500, 2000].map(step => {
+                        const isFilled = currentDayObject.data.water_ml >= step;
+                        return (
+                          <div
+                            key={step}
+                            onClick={() => handleWaterAdd(500)}
+                            className={`h-20 rounded-2xl border flex flex-col items-center justify-center cursor-pointer transition transform active:scale-95 ${
+                              isFilled
+                                ? 'bg-gradient-to-t from-cyan-600 to-cyan-400 border-cyan-300 text-white shadow-lg animate-droplet'
+                                : 'bg-gray-950 border-gray-800 text-gray-500 hover:border-cyan-500/40'
+                            }`}
+                          >
+                            <i data-lucide="droplet" className="w-6 h-6 mb-1"></i>
+                            <span className="text-[10px] font-mono font-bold">{step}ml</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        onClick={() => handleWaterAdd(500)}
+                        className="flex-1 py-2 bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/30 text-cyan-300 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1"
+                      >
+                        <i data-lucide="plus" className="w-4 h-4"></i>
+                        إضافة 500 مل
+                      </button>
+
+                      <button
+                        onClick={handleWaterReset}
+                        className="px-4 py-2 bg-gray-950 hover:bg-rose-950 border border-gray-800 text-gray-400 hover:text-rose-300 rounded-xl text-xs font-bold transition"
+                      >
+                        تفريغ
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 7. SCREEN TIME & SLEEP */}
+                  <div className="bg-gray-900/80 border border-fuchsia-500/30 rounded-3xl p-5 shadow-lg space-y-4">
+                    
+                    {/* Screen Time */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-sm font-bold text-fuchsia-200 flex items-center gap-2">
+                          <i data-lucide="smartphone" className="w-4 h-4 text-pink-400"></i>
+                          كم ساعة استخدمت الهاتف؟
+                        </label>
+                        <span className="text-[10px] text-gray-400">الهدف: 3 ساعات أو أقل</span>
+                      </div>
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="0"
+                        max="24"
+                        value={currentDayObject.data.screen_hours}
+                        onChange={(e) => updateHabitField('screen_hours', e.target.value)}
+                        placeholder="أدخل عدد الساعات الفعلية..."
+                        className="w-full px-4 py-2.5 bg-gray-950 border border-gray-800 rounded-2xl text-white focus:border-fuchsia-400 focus:outline-none font-mono text-sm"
+                      />
+                    </div>
+
+                    {/* Sleep Tracking */}
+                    <div className="pt-3 border-t border-fuchsia-500/20">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-sm font-bold text-fuchsia-200 flex items-center gap-2">
+                          <i data-lucide="moon" className="w-4 h-4 text-indigo-400"></i>
+                          تتبع ساعات النوم (الهدف: 8 ساعات)
+                        </label>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <span className="block text-[11px] text-gray-400 mb-1">نوم الليل (ساعات)</span>
+                          <input
+                            type="number"
+                            step="0.5"
+                            value={currentDayObject.data.sleep_night}
+                            onChange={(e) => updateHabitField('sleep_night', e.target.value)}
+                            placeholder="مثال: 7"
+                            className="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-xl text-white text-sm font-mono focus:border-fuchsia-400 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <span className="block text-[11px] text-gray-400 mb-1">قيلولة الظهر (ساعات)</span>
+                          <input
+                            type="number"
+                            step="0.5"
+                            value={currentDayObject.data.sleep_nap}
+                            onChange={(e) => updateHabitField('sleep_nap', e.target.value)}
+                            placeholder="مثال: 1"
+                            className="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-xl text-white text-sm font-mono focus:border-fuchsia-400 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {(currentDayObject.data.sleep_night !== "" || currentDayObject.data.sleep_nap !== "") && (
+                        <div className="mt-2 text-left text-xs font-mono text-fuchsia-300">
+                          الإجمالي: {(Number(currentDayObject.data.sleep_night) || 0) + (Number(currentDayObject.data.sleep_nap) || 0)} ساعات
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+
+                  {/* 8. WORKOUTS & STOPWATCH */}
+                  <div className="bg-gray-900/80 border border-fuchsia-500/30 rounded-3xl p-5 shadow-lg md:col-span-2">
+                    <div className="flex items-center justify-between mb-4 border-b border-fuchsia-500/20 pb-3">
+                      <div className="flex items-center gap-2">
+                        <i data-lucide="activity" className="w-5 h-5 text-emerald-400"></i>
+                        <h3 className="font-bold text-fuchsia-200 text-base">التمارين الرياضية والحركة (الهدف: 15 دقيقة)</h3>
+                      </div>
+
+                      {/* Workout Stopwatch Counter */}
+                      <div className="flex items-center gap-2 bg-gray-950 px-3 py-1.5 rounded-2xl border border-gray-800 font-mono text-xs">
+                        <span className="text-emerald-400 font-bold">
+                          {Math.floor(timerSeconds / 60).toString().padStart(2, '0')}:
+                          {(timerSeconds % 60).toString().padStart(2, '0')}
+                        </span>
+                        <button
+                          onClick={() => setTimerRunning(!timerRunning)}
+                          className="px-2 py-0.5 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-lg text-[10px] font-bold"
+                        >
+                          {timerRunning ? 'إيقاف' : 'بدء المؤقت'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Workout List */}
+                    <div className="space-y-4">
+                      {currentDayObject.data.workouts.map((w, idx) => {
+                        // Extract YouTube Video ID for preview image if valid
+                        let ytId = null;
+                        if (w.url) {
+                          const match = w.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+                          if (match) ytId = match[1];
+                        }
+
+                        return (
+                          <div key={w.id} className="bg-gray-950 p-4 rounded-2xl border border-gray-800 space-y-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <input
+                                type="text"
+                                value={w.name}
+                                onChange={(e) => {
+                                  const list = [...currentDayObject.data.workouts];
+                                  list[idx].name = e.target.value;
+                                  updateHabitField('workouts', list);
+                                }}
+                                placeholder="اسم التمرين..."
+                                className="bg-gray-900 border border-gray-800 rounded-xl px-3 py-1.5 text-sm font-bold text-fuchsia-200 focus:outline-none"
+                              />
+
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">وقت الحركة الفعلي (دقيقة):</span>
+                                <input
+                                  type="number"
+                                  value={w.actualMoveMin}
+                                  onChange={(e) => {
+                                    const list = [...currentDayObject.data.workouts];
+                                    list[idx].actualMoveMin = Number(e.target.value);
+                                    updateHabitField('workouts', list);
+                                  }}
+                                  className="w-16 px-2 py-1 bg-gray-900 border border-gray-800 rounded-xl text-center font-mono text-sm text-emerald-400 focus:outline-none"
+                                />
+
+                                <button
+                                  onClick={() => {
+                                    const list = currentDayObject.data.workouts.filter((_, i) => i !== idx);
+                                    updateHabitField('workouts', list);
+                                  }}
+                                  className="p-1.5 text-rose-400 hover:bg-rose-950 rounded-lg transition"
+                                >
+                                  <i data-lucide="trash-2" className="w-4 h-4"></i>
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* YouTube Preview Card */}
+                            <div className="flex flex-col sm:flex-row items-center gap-3 bg-gray-900/60 p-3 rounded-xl border border-gray-800/80">
+                              {ytId ? (
+                                <img
+                                  src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+                                  alt="YouTube preview"
+                                  className="w-24 h-16 object-cover rounded-lg border border-fuchsia-500/30"
+                                />
+                              ) : (
+                                <div className="w-24 h-16 bg-gray-950 rounded-lg border border-gray-800 flex items-center justify-center text-gray-600">
+                                  <i data-lucide="video" className="w-6 h-6"></i>
+                                </div>
+                              )}
+
+                              <div className="flex-1 space-y-2 w-full">
+                                <input
+                                  type="text"
+                                  value={w.url}
+                                  onChange={(e) => {
+                                    const list = [...currentDayObject.data.workouts];
+                                    list[idx].url = e.target.value;
+                                    updateHabitField('workouts', list);
+                                  }}
+                                  placeholder="رابط فيديو YouTube اختياري..."
+                                  className="w-full text-xs bg-gray-950 border border-gray-800 rounded-xl px-3 py-1.5 text-gray-300 focus:outline-none"
+                                />
+
+                                {w.url && (
+                                  <a
+                                    href={w.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1 text-[11px] text-fuchsia-400 hover:underline"
+                                  >
+                                    <i data-lucide="external-link" className="w-3 h-3"></i>
+                                    مشاهدة الفيديو على YouTube
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      <button
+                        onClick={() => {
+                          const list = [...currentDayObject.data.workouts, {
+                            id: 'w_' + Date.now(),
+                            name: 'تمرين جديد',
+                            url: '',
+                            durationMin: 15,
+                            actualMoveMin: 15,
+                            notes: ''
+                          }];
+                          updateHabitField('workouts', list);
+                        }}
+                        className="w-full py-2.5 bg-gray-950 hover:bg-gray-900 border border-dashed border-fuchsia-500/40 rounded-2xl text-xs font-bold text-fuchsia-300 transition flex items-center justify-center gap-1"
+                      >
+                        <i data-lucide="plus" className="w-4 h-4"></i>
+                        إضافة تمرين آخر
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 9. FREEFORM NOTES */}
+                  <div className="bg-gray-900/80 border border-fuchsia-500/30 rounded-3xl p-5 shadow-lg md:col-span-2">
+                    <div className="flex items-center gap-2 mb-3">
+                      <i data-lucide="edit-3" className="w-5 h-5 text-fuchsia-400"></i>
+                      <h3 className="font-bold text-fuchsia-200 text-base">ملاحظات إضافية</h3>
+                    </div>
+
+                    <textarea
+                      rows="4"
+                      value={currentDayObject.data.free_notes}
+                      onChange={(e) => updateHabitField('free_notes', e.target.value)}
+                      placeholder="اكتبي يومياتك، أفكارك أو ملاحظاتك بحرية هنا..."
+                      className="w-full p-4 bg-gray-950 border border-gray-800 rounded-2xl text-white text-sm focus:border-fuchsia-400 focus:outline-none custom-scrollbar resize-none"
+                    ></textarea>
+                  </div>
+
+                </div>
+
+                {/* BOTTOM COMMIT / SAVE ACTION BAR */}
+                <div className="sticky bottom-4 z-30 bg-gray-900/95 border-2 border-fuchsia-500/40 rounded-3xl p-4 backdrop-blur-xl shadow-2xl flex flex-wrap items-center justify-between gap-4">
+                  <div className="text-xs text-gray-300">
+                    <span>حالة اليوم: </span>
+                    <span className="font-bold text-fuchsia-300">
+                      {currentDayObject.status === 'committed' ? 'معتمد وموثق' : 'مسودة قابلة للتعديل'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSaveDraft}
+                      className="px-5 py-2.5 bg-gray-950 hover:bg-gray-800 border border-fuchsia-500/40 text-fuchsia-200 font-bold rounded-2xl text-xs sm:text-sm transition flex items-center gap-1.5"
+                    >
+                      <i data-lucide="save" className="w-4 h-4"></i>
+                      حفظ إنجازي حتى الآن
+                    </button>
+
+                    <button
+                      onClick={() => setShowCommitModal(true)}
+                      className="px-6 py-2.5 bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-500 hover:to-pink-500 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-lg glow-fuchsia-sm transition flex items-center gap-1.5"
+                    >
+                      <i data-lucide="check-circle" className="w-4 h-4"></i>
+                      إنهاء اليوم واعتماده
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* TAB 2: MONTHLY HARVEST (حصاد الشهر) */}
+            {activeTab === "harvest" && (
+              <div className="space-y-6">
+
+                {/* Top Summary Banner */}
+                <div className="bg-gray-900/90 border border-fuchsia-500/30 rounded-3xl p-6 shadow-xl backdrop-blur-md">
+                  <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <div>
+                      <h2 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 to-pink-200">
+                        حصاد شهر نوفمبر 2026
+                      </h2>
+                      <p className="text-xs text-gray-400 mt-1">نظرة شاملة ومؤشرات الإنجاز لجميع الأيام المعتمدة</p>
+                    </div>
+
+                    {!isViewerMode && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={exportJSON}
+                          className="px-4 py-2 bg-gray-950 hover:bg-fuchsia-950 border border-fuchsia-500/30 text-fuchsia-300 rounded-xl text-xs font-bold transition flex items-center gap-1"
+                        >
+                          <i data-lucide="download" className="w-4 h-4"></i>
+                          تصدير JSON
+                        </button>
+                        <button
+                          onClick={exportCSV}
+                          className="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow"
+                        >
+                          <i data-lucide="file-spreadsheet" className="w-4 h-4"></i>
+                          تصدير CSV
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Harvest Analytics Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                    <div className="bg-gray-950 p-4 rounded-2xl border border-gray-800 text-center">
+                      <span className="block text-[10px] text-gray-400">متوسط الإنجاز المعتمد</span>
+                      <span className="text-2xl font-extrabold text-fuchsia-400 font-mono mt-1 block">
+                        {harvestStats.avgScore}%
+                      </span>
+                    </div>
+
+                    <div className="bg-gray-950 p-4 rounded-2xl border border-gray-800 text-center">
+                      <span className="block text-[10px] text-gray-400">الأيام المعتمدة</span>
+                      <span className="text-2xl font-extrabold text-emerald-400 font-mono mt-1 block">
+                        {harvestStats.committedCount} / 30
+                      </span>
+                    </div>
+
+                    <div className="bg-gray-950 p-4 rounded-2xl border border-gray-800 text-center">
+                      <span className="block text-[10px] text-gray-400">ساعات المذاكرة</span>
+                      <span className="text-2xl font-extrabold text-pink-300 font-mono mt-1 block">
+                        {harvestStats.totalStudyHours} س
+                      </span>
+                    </div>
+
+                    <div className="bg-gray-950 p-4 rounded-2xl border border-gray-800 text-center">
+                      <span className="block text-[10px] text-gray-400">دقائق الرياضة</span>
+                      <span className="text-2xl font-extrabold text-emerald-300 font-mono mt-1 block">
+                        {harvestStats.totalWorkoutMin} د
+                      </span>
+                    </div>
+
+                    <div className="bg-gray-950 p-4 rounded-2xl border border-gray-800 text-center">
+                      <span className="block text-[10px] text-gray-400">إجمالي الماء</span>
+                      <span className="text-2xl font-extrabold text-cyan-400 font-mono mt-1 block">
+                        {harvestStats.totalWaterLiters} لتر
+                      </span>
+                    </div>
+
+                    <div className="bg-gray-950 p-4 rounded-2xl border border-gray-800 text-center">
+                      <span className="block text-[10px] text-gray-400">متوسط النوم / الهاتف</span>
+                      <span className="text-xs font-extrabold text-indigo-300 font-mono mt-2 block">
+                        {harvestStats.avgSleep}س نوم • {harvestStats.avgScreen}س هاتف
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Visual November Calendar Grid */}
+                <div className="bg-gray-900/80 border border-fuchsia-500/30 rounded-3xl p-6 shadow-lg">
+                  <h3 className="font-bold text-fuchsia-200 text-base mb-4 flex items-center gap-2">
+                    <i data-lucide="grid" className="w-5 h-5 text-fuchsia-400"></i>
+                    خارطة أيام شهر نوفمبر 2026
+                  </h3>
+
+                  <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-2">
+                    {Array.from({ length: NOVEMBER_2026_DAYS }, (_, i) => i + 1).map(d => {
+                      const dayObj = daysData[d];
+                      const { overallScore } = calculateDayScore(dayObj.data);
+                      const isCommitted = dayObj.status === 'committed';
+                      const isDraft = dayObj.status === 'draft';
+
+                      return (
+                        <div
+                          key={d}
+                          onClick={() => {
+                            setSelectedDay(d);
+                            setActiveTab("daily");
+                          }}
+                          className={`p-3 rounded-2xl border flex flex-col items-center justify-between cursor-pointer transition transform hover:scale-105 ${
+                            isCommitted
+                              ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-200'
+                              : isDraft
+                              ? 'bg-amber-950/60 border-amber-500/40 text-amber-200'
+                              : 'bg-gray-950 border-gray-800 text-gray-500 hover:border-fuchsia-500/40'
+                          }`}
+                        >
+                          <span className="text-[10px] font-mono opacity-70">يوم {d}</span>
+                          <span className="text-base font-extrabold font-mono my-1">
+                            {isCommitted || isDraft ? `${overallScore}%` : '-'}
+                          </span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-gray-900/80">
+                            {isCommitted ? 'معتمد' : isDraft ? 'مسودة' : 'فارغ'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* TAB 3: SCORING EXPLANATION (كيف تُحسب النسبة؟) */}
+            {activeTab === "scoring" && (
+              <div className="bg-gray-900/90 border border-fuchsia-500/30 rounded-3xl p-6 shadow-xl space-y-6">
+                <div>
+                  <h2 className="text-2xl font-extrabold text-fuchsia-200 flex items-center gap-2">
+                    <i data-lucide="info" className="w-6 h-6 text-fuchsia-400"></i>
+                    كيف تُحسب نسبة الإنجاز اليومي؟
+                  </h2>
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                    تعتمد الخوارزمية على تسعة مجالات متساوية الوزن (100% لكل مجال). تُحسب النسبة الإجمالية كمتوسط موزون لهذه المجالات.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { title: '1. العناية الصباحية والمسائية', desc: 'تُحسب بنسبة عدد المهام التي تم تعليمها ÷ إجمالي بنود العناية المنطبقة.' },
+                    { title: '2. العادات وتطوير الذات', desc: 'تتضمن برد الأظافر، الحنة والسدر، التسويق، صناعة المحتوى، والاهتمام بالمنزل.' },
+                    { title: '3. مذاكرة القدرات والتعليم', desc: '5 جلسات مستهدفة (30 دقيقة للجلسة). النسبة = الجلسات المكتملة ÷ 5.' },
+                    { title: '4. متابعة الصلوات الخمس', desc: 'في وقتها = 1 نقطة، متأخرة = 0.5 نقطة. النسبة = مجموع النقاط ÷ 5.' },
+                    { title: '5. شرب الماء', desc: 'الهدف 2000 مل (2 لتر). النسبة = الكمية الفعلية ÷ 2000.' },
+                    { title: '6. التمارين الرياضية', desc: 'الهدف 15 دقيقة حركة فعلية. النسبة = دقائق الحركة ÷ 15.' },
+                    { title: '7. تتبع النوم', desc: 'الهدف 8 ساعات إجمالية (نوم الليل + القيلولة). النسبة = الإجمالي ÷ 8.' },
+                    { title: '8. استخدام الهاتف', desc: 'الهدف 3 ساعات أو أقل (100%). في حال الزيادة = (3 ÷ الساعات الفعلية) × 100%.' },
+                    { title: '9. استبعاد "لا ينطبق"', desc: 'البنود المستبعدة لا تنقص النقاط بل يعاد توزيع الوزن تلقائياً على باقي المجالات.' },
+                  ].map((rule, idx) => (
+                    <div key={idx} className="bg-gray-950 p-4 rounded-2xl border border-gray-800 space-y-1">
+                      <h4 className="font-bold text-sm text-fuchsia-300">{rule.title}</h4>
+                      <p className="text-xs text-gray-400 leading-relaxed">{rule.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="p-4 bg-fuchsia-950/40 border border-fuchsia-500/30 rounded-2xl text-xs text-fuchsia-200 leading-relaxed">
+                  💡 <span className="font-bold">تنويه هام:</span> هذه النسب والمؤشرات هي أدوات تنظيمية ومتابعة شخصية لمساعدتك على التطوير، وليست تقييماً لقيمة الشخص أو حكمًا على العبادات.
+                </div>
+              </div>
+            )}
+
+          </main>
+
+          {/* VIEWER CUMULATIVE COUNTER WIDGET (Bottom-Left) */}
+          {isViewerMode && (
+            <div className="fixed bottom-4 left-4 z-40 bg-gray-900/95 border border-fuchsia-500/40 p-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 text-xs max-w-[240px]">
+              <div className="p-2 bg-fuchsia-950 rounded-xl text-fuchsia-400">
+                <i data-lucide="users" className="w-4 h-4"></i>
+              </div>
+              <div>
+                <span className="block text-[10px] text-gray-400">عداد المتصفحات للمشاهدة:</span>
+                <span className="font-bold font-mono text-fuchsia-300 text-sm">{visitorCount} تجربة</span>
+              </div>
+            </div>
+          )}
+
+          {/* COMMIT CONFIRMATION MODAL */}
+          {showCommitModal && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-gray-900 border-2 border-fuchsia-500/40 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+                <div className="flex items-center gap-3 text-fuchsia-300">
+                  <i data-lucide="alert-circle" className="w-6 h-6 text-fuchsia-400"></i>
+                  <h3 className="font-bold text-lg">تأكيد اعتماد سجل اليوم</h3>
+                </div>
+
+                <p className="text-xs text-gray-300 leading-relaxed">
+                  هل أنت متأكدة من اعتماد سجل يوم <span className="font-bold text-fuchsia-300">{selectedDay} نوفمبر</span>؟ 
+                  سيتم توثيق هذا اليوم في حصاد الشهر، ويمكنك التعديل عليه لاحقاً إذا لزم الأمر.
+                </p>
+
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-800">
+                  <button
+                    onClick={() => setShowCommitModal(false)}
+                    className="px-4 py-2 bg-gray-950 hover:bg-gray-800 text-gray-300 rounded-xl text-xs font-bold transition"
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    onClick={handleConfirmCommit}
+                    className="px-5 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-xl text-xs font-bold transition shadow"
+                  >
+                    نعم، اعتمد اليوم
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* PASSWORD CHANGE MODAL */}
+          {showPasswordChangeModal && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-gray-900 border-2 border-fuchsia-500/40 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+                <div className="flex items-center justify-between text-fuchsia-300">
+                  <h3 className="font-bold text-lg flex items-center gap-2">
+                    <i data-lucide="key" className="w-5 h-5"></i>
+                    تغيير كلمة مرور المالك
+                  </h3>
+                  <button onClick={() => setShowPasswordChangeModal(false)} className="text-gray-400 hover:text-white">
+                    <i data-lucide="x" className="w-5 h-5"></i>
+                  </button>
+                </div>
+
+                <form onSubmit={handleSaveNewPassword} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-1">كلمة المرور الجديدة:</label>
+                    <input
+                      type="password"
+                      value={newPass}
+                      onChange={(e) => setNewPass(e.target.value)}
+                      placeholder="أدخل كلمة مرور جديدة..."
+                      className="w-full px-4 py-2.5 bg-gray-950 border border-gray-800 rounded-2xl text-white text-sm focus:border-fuchsia-400 focus:outline-none"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordChangeModal(false)}
+                      className="px-4 py-2 bg-gray-950 text-gray-300 rounded-xl text-xs font-bold"
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-xl text-xs font-bold shadow"
+                    >
+                      حفظ كلمة المرور
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    // Render App
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+
+    // Initialize Lucide Icons after render
+    setTimeout(() => {
+      if (window.lucide) window.lucide.createIcons();
+    }, 500);
+  </script>
+</body>
+</html>

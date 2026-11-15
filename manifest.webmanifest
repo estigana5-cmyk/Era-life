@@ -1,0 +1,16 @@
+{
+  "id": "/",
+  "name": "Life Era — حياتك بتنظيمك",
+  "short_name": "Life Era",
+  "description": "مساحتك الشخصية لإدارة الحياة والعادات والمهام والمشاريع",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f5f0",
+  "theme_color": "#172b36",
+  "icons": [
+    {"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
