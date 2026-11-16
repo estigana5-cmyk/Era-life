@@ -1,47 +1,37 @@
-# Life Era v0.2
+# إراء Era — Habit Planner
 
-مساحتك الشخصية لتنظيم الحياة والمشاريع — تطبيق ويب عربي RTL قابل للتحويل إلى PWA على Android.
+Arabic RTL monthly planner prototype with a real Express server, SQLite central storage, owner session authentication, rate-limited login, viewer isolation, and optimistic revision checks.
 
-## الموجود في هذه النسخة
-- لوحة رئيسية وإحصاءات يومية.
-- إدارة العادات وتسجيل إنجاز اليوم.
-- المهام مع التاريخ والأولوية وحالة الإنجاز.
-- الأهداف مع تاريخ مستهدف ونسبة تقدم قابلة للتعديل.
-- المشاريع الإلكترونية مع النوع والحالة والملاحظات.
-- مفكرة للملاحظات والأفكار.
-- سجل دخل ومصروفات بالدينار الليبي مع صافي الرصيد.
-- تقويم مبسط يعرض المهام حسب التاريخ.
-- تخزين محلي في IndexedDB عبر Dexie.
-- أساس PWA: manifest وservice worker وأيقونة.
+## Requirements
+- Node.js 20+
+- A persistent server/disk (SQLite file is stored in `data/era.sqlite`)
+- Set `SESSION_SECRET` and `OWNER_PASSWORD_HASH` in environment variables before deployment.
 
-## المتطلبات والتشغيل
-Node.js 20 أو أحدث وnpm.
+## Run locally
 ```bash
 npm install
-npm run dev
+cp .env.example .env
 ```
-ثم افتحي http://localhost:3000
-
-## البناء
+Generate an owner password hash without putting the password in public source:
 ```bash
-npm run build
-npm run start
+node -e "import('bcryptjs').then(async b=>console.log(await b.hash(process.stdin.read().toString().trim(),12)))"
 ```
+Type/paste your password into stdin, then copy the printed hash to `OWNER_PASSWORD_HASH` in `.env`. (For production, set environment variables in your host's secret manager.) Then:
+```bash
+npm start
+```
+Open http://localhost:3000
 
-## التثبيت على Android
-بعد نشر المشروع على استضافة HTTPS، افتحي رابط الموقع في Chrome على Android، ثم قائمة ⋮ واختاري Install app أو Add to Home screen.
+## Storage and security
+- Owner records are stored centrally in SQLite on the server; they are not stored in browser localStorage.
+- Viewer/demo mode uses in-memory state in the page and has no write endpoint. Its submitted requests are denied by the server.
+- Login is rate-limited; passwords are bcrypt hashes; session cookie is HttpOnly and SameSite=Lax. Set HTTPS in production so Secure cookies are enabled.
+- Every save includes a revision number. A stale revision receives HTTP 409 and cannot silently overwrite newer data.
+- JSON export is owner-only. This local app does not include hosted deployment, email recovery, or managed database backups.
+- Use a persistent volume for `data/` in deployment. SQLite is suitable for a small personal site, not multi-node serverless deployment.
 
-هذه النسخة لا تحتوي APK مستقلًا، ولا يوجد رابط عام منشور حتى الآن. التثبيت المقترح هو PWA من Chrome بعد النشر.
+## Implemented baseline
+Daily sections, configurable goals, habits, prayer status and points, study sessions, water steps, exercise records/timer, sleep/phone fields, weekly care schedule, notes, draft save, day approval, monthly overview, JSON/CSV export, temporary viewer mode, responsive RTL layout, reduced-motion support, and audio toggle.
 
-## التخزين والخصوصية
-البيانات محفوظة محليًا في متصفح/جهاز المستخدم عبر IndexedDB. حذف بيانات المتصفح قد يؤدي إلى فقدانها؛ لا توجد مزامنة سحابية أو تسجيل دخول أو نسخ احتياطي تلقائي في هذه النسخة.
-
-## ما لم يُنفذ بعد
-- تذكيرات نظام Android الفعلية والإشعارات المجدولة.
-- مزامنة سحابية وتسجيل دخول متعدد الأجهزة.
-- مشاركة البيانات والنسخ الاحتياطي التلقائي.
-- ربط ChatGPT أو Gemini.
-- تحليلات متقدمة وتقارير شهرية.
-
-## حالة الاختبار
-لم يكتمل تثبيت الحزم في بيئة الإنشاء بسبب انتهاء مهلة npm install؛ لذلك لم يتم تأكيد نجاح build أو التشغيل أو النشر. يلزم تنفيذ npm install ثم npm run build في بيئة متصلة قبل اعتبار النسخة جاهزة للإنتاج.
+## Important limitations
+This is a working starter project, not a claim of completed production audit. You must deploy it to a trusted HTTPS host and set secrets. YouTube metadata retrieval is not implemented; add manual title/thumbnail/duration where needed. Browser audio and visual behavior must be checked on target devices. The included tests are not a substitute for live multi-device, visual, security, or deployment tests.
